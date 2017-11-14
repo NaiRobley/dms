@@ -15,9 +15,9 @@ router.route('/')
 router.route('/:documentID')
     .get([verifyToken(), validateParam(schemas.idSchema, 'documentID')],
          documentsController.getDocument)
-    .put([verifyToken(), validateParam(schemas.idSchema, 'documentID')],
+    .put([verifyToken(), validateParam(schemas.idSchema, 'documentID'), validateBody(schemas.documentSchema)],
          documentsController.replaceDocument)
-    .patch([verifyToken(), validateParam(schemas.idSchema, 'documentID')],
+    .patch([verifyToken(), validateParam(schemas.idSchema, 'documentID'), validateBody(schemas.documentSchemaOptional)],
             documentsController.updateDocument)
     .delete([verifyToken(), validateParam(schemas.idSchema, 'documentID')],
             documentsController.deleteDocument);
