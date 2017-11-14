@@ -60,8 +60,8 @@ module.exports = {
     // Update user attributes (PATCH)
     // VALIDATED
     updateUser: async (req, res, next) => {
-        // req.body can contain any number of fields
-        const { userID } = req.value.params;
+        // get user id from decoded token
+        const userID = req.user.id;
         const newUser = req.value.body;
         const result = await User.findByIdAndUpdate(userID, newUser);
         res.status(200).json({success: true});
@@ -69,7 +69,8 @@ module.exports = {
     // Replace user (PUT)
     // VALIDATED
     replaceUser: async (req, res, next) => {
-        const { userID } = req.value.params;
+        // get user id from decoded token
+        const userID = req.user.id;
         const newUser = req.value.body;
         const result = await User.findByIdAndUpdate(userID, newUser);
         res.status(200).json({success: true});
@@ -77,7 +78,8 @@ module.exports = {
     // Delete a user
     // VALIDATED
     deleteUser: async (req, res, next) => {
-        const { userID } = req.value.params;
+        // get user id from decoded token
+        const userID = req.user.id;
         const result = await User.findByIdAndRemove(userID);
         res.status(204).json({success: true});
     },
