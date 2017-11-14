@@ -10,17 +10,16 @@ const { validateParam, validateBody, schemas, verifyToken } = require('../helper
 
 router.route('/')
     .get(verifyToken(), usersController.getUsers)
-    .post(validateBody(schemas.userSchema), usersController.registerUser);
+    .post(validateBody(schemas.userSchema), usersController.registerUser)
+    .put([verifyToken(), validateBody(schemas.userSchema)],
+         usersController.replaceUser)
+    .patch([verifyToken(), validateBody(schemas.userSchemaOptional)],
+           usersController.updateUser)
+    .delete(verifyToken(), usersController.deleteUser);
 
 router.route('/:userID')
     .get([verifyToken(), validateParam(schemas.idSchema, 'userID')],
-         usersController.findUser)
-    .put([verifyToken(), validateParam(schemas.idSchema, 'userID'), validateBody(schemas.userSchema)],
-         usersController.replaceUser)
-    .patch([verifyToken(), validateParam(schemas.idSchema, 'userID'), validateBody(schemas.userSchemaOptional)],
-           usersController.updateUser)
-    .delete([verifyToken(), validateParam(schemas.idSchema, 'userID')],
-            usersController.deleteUser);
+         usersController.findUser);
 
 router.route('/login')
     .post(usersController.login);
