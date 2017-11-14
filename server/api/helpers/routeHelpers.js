@@ -35,24 +35,27 @@ module.exports = {
             return result;
         });
     },
-    // Role verification for documents
+    // Role verification for documents when updating and deleting
     documentRoleCheck: (document, user) => {
-        if (document.access === 'public') {
+       if (document.owner == user.id ) {
             return document;
-        } else {
-            return null;
-        }
-        if (document.access === 'private' && document.owner == user.id) {
-            return document;
-        } else {
-            return null;
+       }      
+    },
+    // Check the role of documents while fetching
+    documentAccessCheck: (document, user) => {
+        if (document.access === 'admin' && document.owner == user.id ) {
+             return document;
         }
         if (document.access === 'admin' && user.role === 'admin') {
-            return document;
-        } else {
-            return null;
+             return document;
         }
-    },
+        if (document.access === 'private' && document.owner == user.id) {
+             return document;
+        }
+        if (document.access === 'public') {
+             return document;
+        }         
+     },
     // Validation of the request parameters
     validateParam: (schema, name) => {
         return (req, res, next) => {
@@ -120,9 +123,9 @@ module.exports = {
         }),
         // For PATCH requests validation
         documentSchemaOptional: Joi.object().keys({
-            title: Joi.string().required(),
-            content: Joi.string().required(),
-            access: Joi.string().required()
+            title: Joi.string(),
+            content: Joi.string(),
+            access: Joi.string()
         })        
     }
 };
