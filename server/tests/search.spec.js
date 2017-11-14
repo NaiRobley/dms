@@ -1,27 +1,114 @@
-// Search for a user
+'use strict';
 
-// Search for a user without a query
+process.env.NODE_ENV = 'TESTING';
 
-// Failing search for a user
+const chai = require('chai');
+// chai.use(require('chai-http'));
+const app = require('../server');
+const should = chai.should();
 
-// Search for a user without auth
+const mongoose = require('mongoose');
 
-// Search for a document
+const User = require('../api/models/userModel');
+const Document = require('../api/models/documentModel');
 
-// Search for a document with no query
+describe('Tests for Search Functionality', () => {
+    // this.timeout(5000); // How long to wait for a resource
+    beforeEach((done) => {
+        User.remove({}, (err) => {
+            done();
+        })
+    });
+    before(() => {
+        // Create sample users
+        // Create sample documents
+    });
+    after(() => {
+        // Remove the users
+        // Remove the documents
+    });
 
-// Failing search for a document
+    describe('Search for a user', () => {
+        it('should return a list of users', (done) => {
+            chai.request(app)
+                .delete('/api/search/users/', {})
+                .end((err, res) => {
 
-// Search for a document without auth
+                });
+        });
+    });  
 
-// Admin can access all docs
+    describe('Search for a user without query', () => {
+        it('should return an error message', (done) => {
+            chai.request(app)
+                .delete('/api/search/users/', {})
+                .end((err, res) => {
 
-// Normal user cannot access admin docs
+                });
+        });
+    });   
 
-// Normal user trying to access an admin doc
+    describe('Failing search for a user', () => {
+        it('should return an error message', (done) => {
+            chai.request(app)
+                .delete('/api/search/users/', {})
+                .end((err, res) => {
 
-// Public user trying to access a private document
+                });
+        });
+    });   
 
-// Normal user trying to access private document
+    describe('Search for a user without auth', () => {
+        it('should return an error message', (done) => {
+            chai.request(app)
+                .delete('/api/search/users/', {})
+                .end((err, res) => {
 
-// Normal user trying to access an admin document
+                });
+        });
+    });   
+
+    describe('Search for a document', () => {
+        it('should return a list of documents', (done) => {
+            chai.request(app)
+                .delete('/api/search/documents/', {})
+                .end((err, res) => {
+
+                });
+        });
+    });  
+
+    describe('Search for a document', () => {
+        it('should return an error message', (done) => {
+            chai.request(app)
+                .delete('/api/search/documents/', {})
+                .end((err, res) => {
+
+                });
+        });
+    });  
+
+    describe('Failing search for a document', () => {
+        it('should return an error message', (done) => {
+            chai.request(app)
+                .delete('/api/search/documents/', {})
+                .end((err, res) => {
+
+                });
+        });
+    });  
+
+    describe('Search for a document without auth', () => {
+        it('should return an error message', (done) => {
+            chai.request(app)
+                .delete('/api/search/documents/', {})
+                .end((err, res) => {
+
+                });
+        });
+    });  
+
+});
+
+
+
