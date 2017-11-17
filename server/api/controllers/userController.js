@@ -1,6 +1,7 @@
 'use strict';
 
 const User = require('../models/userModel');
+const bcrypt = require('bcrypt');
 const { generateToken, encryptPassword, confirmPassword } = require('../helpers/routeHelpers');
 
 module.exports = {
@@ -16,7 +17,7 @@ module.exports = {
                     res.status(404).json({ success: false, message: 'User not found'});
                 } else if (user) {
                     const state = confirmPassword(req.body.password, user.password);
-                    if (state == false) {
+                    if (state != true) {
                         res.status(401).json({ success: false, message: 'Wrong password'});
                     } else {
                         const payload = {
@@ -25,7 +26,7 @@ module.exports = {
                             role: user.role
                         };
                         const token = generateToken(payload);
-                        res.status(200).json({ token: token, success: true });
+                        res.status(200).json({ id: user._id, token: token, success: true });
                     }
                 }
             }
@@ -40,14 +41,14 @@ module.exports = {
         const limit = req.query.limit || 5;
         const offset = req.query.offset || 5;
         const users = await User.find({});
-        res.status(200).json(users);
+        res.status(200).json({success: true, users: users});
     },
     // Create a new user
     // VALIDATED
     registerUser: async (req, res, next) => {
         const newUser = new User(req.value.body);
         const user = await newUser.save();
-        res.status(201).json(user);
+        res.status(201).json({success: true, message: 'User successfully registered', user: {username: user.username, email: user.email}});
     },
     // Find a single user by their userID
     // VALIDATED
@@ -64,7 +65,7 @@ module.exports = {
         const userID = req.user.id;
         const newUser = req.value.body;
         const result = await User.findByIdAndUpdate(userID, newUser);
-        res.status(200).json({success: true});
+        res.status(200).json({success: true, message: 'Update successful'});
     },
     // Replace user (PUT)
     // VALIDATED
@@ -73,7 +74,7 @@ module.exports = {
         const userID = req.user.id;
         const newUser = req.value.body;
         const result = await User.findByIdAndUpdate(userID, newUser);
-        res.status(200).json({success: true});
+        res.status(200).json({success: true, message: 'Update successful'});
     },
     // Delete a user
     // VALIDATED
@@ -87,12 +88,12 @@ module.exports = {
     searchUser: async (req, res, next) => {
         const query = req.query.q;
         const users = await User.find({ username: query });
-        res.status(200).json(users);
+        res.status(200).json({success: true, users: users});
     },
     // Get a user's documents
     userDocuments: async (req, res, next) => {
         const { userID } = req.value.params;
         const user = await User.findById(userID).populate('documents');
-        res.status(200).json(user.documents);
+        res.status(200).json({ success: true, documents: user.documents });
     }
 };

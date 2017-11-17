@@ -30,7 +30,7 @@ module.exports = {
         // Save the document
         await newDocument.save();
         // Add document to user's documents
-        owner.documents.push(newDocument);
+        await owner.documents.push(newDocument);
         // Save the owner
         await owner.save();
         res.status(201).json(newDocument);
@@ -73,6 +73,7 @@ module.exports = {
         const result = await Document.findByIdAndRemove(documentID);
         // Remove from owner's list of documents
         const owner = await User.findById(req.user.id);
+        // owner.documents.pull(document)
         owner.documents = await owner.documents.filter((document) => { 
             return document != documentID;
         });

@@ -30,10 +30,8 @@ module.exports = {
         }
     },
     // Verify password during login or update
-    confirmPassword: async (password, hash) => {
-        return await bcrypt.compare(password, hash, (err, result) => {
-            return result;
-        });
+    confirmPassword: (password, hash) => {
+        return bcrypt.compareSync(password, hash);
     },
     // Role verification for documents when updating and deleting
     documentRoleCheck: (document, user) => {

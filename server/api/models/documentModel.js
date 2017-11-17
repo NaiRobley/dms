@@ -21,10 +21,6 @@ const documentSchema = new Schema({
     createdOn: {
         type: Date,
         default: Date.now
-    },
-    modifiedOn: {
-        type: Date,
-        default: Date.now
     }
 });
 
