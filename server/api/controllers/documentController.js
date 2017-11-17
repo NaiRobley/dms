@@ -106,13 +106,9 @@ module.exports = {
     },
     // Search for a document
     searchDocument: async (req, res, next) => {
-        const query = req.query.q;
-        const allDocuments = Document.find({    
-            "$text": {
-                "$search":query
-            }
-        });
+        const query = new RegExp(req.query.q, 'i');
+        const allDocuments = await Document.find({ title: query });
         let documents = await allDocuments.filter((document, user) => documentAccessCheck(document, req.user));
-        res.status(200).json(documents);
+        res.status(200).json({success: true, results: documents});
     }
 };
