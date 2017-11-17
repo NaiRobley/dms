@@ -5,10 +5,11 @@ const logger = require('morgan');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const app = express();
+const config = require('../config');
 
 // Connect to mongoose
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/dmsdb', { useMongoClient: true });
+mongoose.connect(config[process.env.NODE_ENV]['DATABASE'], { useMongoClient: true });
 
 // Imported routes
 const userRoutes = require('./api/routes/usersRoutes');
@@ -49,3 +50,5 @@ app.use((err, req, res, next) => {
 // Start the server
 const port = app.get('port') || 3000;
 app.listen(port, () => console.log(`Server is listening on port ${port}`));
+
+module.exports = app; // for testing
