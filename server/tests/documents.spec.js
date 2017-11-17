@@ -3,7 +3,7 @@
 process.env.NODE_ENV = 'TESTING';
 
 const chai = require('chai');
-// chai.use(require('chai-http'));
+chai.use(require('chai-http'));
 const app = require('../server');
 const should = chai.should();
 
@@ -11,376 +11,436 @@ const mongoose = require('mongoose');
 
 const User = require('../api/models/userModel');
 const Document = require('../api/models/documentModel');
+const testData = require('./test_data');
+
+let adminToken = '';
+
+let normalUserToken = '';
+
+let adminID = '';
+
+let normalUserID = '';
+
+let publicDocument = {};
+
+let privateDocument = {};
+
+let adminDocument = {};
+
+let adminDocumentB = {};
+
 
 describe('Tests for Documents Functionality', () => {
-    // this.timeout(5000); // How long to wait for a resource
-    beforeEach((done) => {
+    // Create a sample admin user
+    before((done) => {
+        chai.request(app)
+            .post('/api/users/')
+            .send(testData.sampleAdmin)
+            .end((err, res) => {
+                done();
+            });
+    });
+    // Log in as a sample admin user
+    before((done) => {
+        chai.request(app)
+        .post('/api/users/login/')
+        .send(testData.sampleAdmin)
+        .end((err, res) => {
+            adminToken = res.body.token;
+            adminID = res.body.id;
+            done();
+        });   
+    });
+    // Create a sample normal user
+    before((done) => {
+        chai.request(app)
+            .post('/api/users/')
+            .send(testData.sampleNormal)
+            .end((err, res) => {
+                done();
+            });        
+    });
+    // Log in as a sample normal user
+    before((done) => {
+        chai.request(app)
+            .post('/api/users/login/')
+            .send(testData.sampleNormal)
+            .end((err, res) => {
+                normalUserToken = res.body.token;
+                normalUserID = res.body.id;
+            done();
+        });   
+    });    
+    // Create admin documents
+    before((done) => {
+        chai.request(app)
+            .post('/api/documents/')
+            .set('token', adminToken)
+            .send(testData.sampleAdminDocumentA)
+            .end((err, res) => {
+                done();
+            });          
+    });
+    before((done) => {
+        chai.request(app)
+            .post('/api/documents/')
+            .set('token', adminToken)
+            .send(testData.sampleAdminDocumentB)
+            .end((err, res) => {
+                adminDocument = res.body.document;
+                done();
+            });          
+    });
+    before((done) => {
+        chai.request(app)
+            .post('/api/documents/')
+            .set('token', adminToken)
+            .send(testData.sampleAdminDocumentB)
+            .end((err, res) => {
+                adminDocumentB = res.body.document;
+                done();
+            });          
+    });    
+    after((done) => {
+        // Remove the users
         User.remove({}, (err) => {
             done();
         })
-    });
-    before(() => {
-        // Create sample users
-        // Create sample documents
-    });
-    after(() => {
-        // Remove the users
         // Remove the documents
     });
+    after((done) => {
+        // Remove the documents
+        Document.remove({}, (err) =>{
+            done();
+        });
+    });    
 
-    describe('Create a document with all the required attributes', () => {
+    describe('POST /api/documents - Create a document with all the required attributes', () => {
         it('should successfully create a document', (done) => {
-            const document = {}
             chai.request(app)
                 .post('/api/documents')
-                .send(document)
+                .set('token', adminToken)
+                .send(testData.sampleAdminDocument)
                 .end((err, res) => {
                     res.should.have.status(201);
                     res.body.should.be.a('object');
                     res.body.should.have.property('message').eql('Document successfully created');
-                    res.body.book.should.have.property('title');
-                    res.body.book.should.have.property('content');
-                    res.body.book.should.have.property('access');
+                    res.body.document.should.have.property('title');
+                    res.body.document.should.have.property('content');
+                    res.body.document.should.have.property('access');
                   done();
                 });
         });
     });
 
-    describe('Create a document with invalid attributes', () => {
+    describe('POST /api/documents - Create a document with invalid attributes', () => {
         it('should return an error message', (done) => {
-            const document = {}
             chai.request(app)
                 .post('/api/documents')
-                .send(document)
+                .set('token', adminToken)
+                .send({ title: 'Sample Admin Document A',
+                        content: 'The content for sample admin document a'})
                 .end((err, res) => {
-
+                    res.should.have.status(400);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('details');
+                    res.body.should.have.property('name').eql('ValidationError');
+                    res.body.details[0].should.have.property('message');
                   done();
                 });
         });
     });
 
-    describe('Create a document without auth', () => {
+    describe('POST /api/documents - Create a document without auth', () => {
         it('should return an error message', (done) => {
-            const document = {}
             chai.request(app)
                 .post('/api/documents')
-                .send(document)
+                .send({ title: 'Sample Admin Document A',
+                        content: 'The content for sample admin document a'})
                 .end((err, res) => {
-
-                  done();
-                });
+                    res.should.have.status(400);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('message').eql('Please provide a token, or login to get one');
+                    res.body.should.have.property('success').eql(false);   
+              done();
+            });
         });
     });
 
-    describe('Fetch all documents documents', () => {
+    describe('GET /api/documents - Fetch all documents documents', () => {
         it('should return a list of documents', (done) => {
-            const document = {}
             chai.request(app)
                 .get('/api/documents')
+                .set('token', adminToken)
                 .end((err, res) => {
-
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('success').eql(true);
+                    res.body.should.have.property('documents');
                   done();
                 });
         });
     });
 
-    describe('Fetch documents without auth', () => {
+    describe('GET /api/documents - Fetch documents without auth', () => {
         it('should return an error message', (done) => {
-            const document = {}
             chai.request(app)
                 .get('/api/documents')
                 .end((err, res) => {
-
+                    res.should.have.status(400);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('message').eql('Please provide a token, or login to get one');
+                    res.body.should.have.property('success').eql(false); 
                   done();
                 });
         });
     });
 
-    describe('Fetch all documents as an admin', () => {
-        it('should return a list of all documents', (done) => {
-            const document = {}
-            chai.request(app)
-                .get('/api/documents')
-                .send(document)
-                .end((err, res) => {
-
-                  done();
-                });
-        });
-    });
-
-    describe('Fetch documents as a normal user', () => {
-        it('should return a list of public documents and those owned by the user', (done) => {
-            const document = {}
-            chai.request(app)
-                .get('/api/documents')
-                .send(document) 
-                .end((err, res) => {
-
-                  done();
-                });
-        });
-    });
-
-    describe('Fetch a single public document', () => {
+    describe('GET /api/documents/:documentID - Fetch a single document', () => {
         it('should return a document object', (done) => {
-            const document = {}
             chai.request(app)
-                .get('/api/documents')
+                .get(`/api/documents/${adminDocument._id}`)
+                .set('token', adminToken)
                 .end((err, res) => {
-
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('success').eql(true);
+                    res.body.should.have.property('document');                    
                   done();
                 });
         });
     });
 
-    describe('Fetch a single private document as the owner', () => {
-        it('should return a document object', (done) => {
-            const document = {}
-            chai.request(app)
-                .get('/api/documents')
-                .end((err, res) => {
-
-                  done();
-                });
-        });
-    });
-
-    describe('Fetch a single private document not as the owner', () => {
+    describe('GET /api/documents/:documentID - Fetch a single document without auth', () => {
         it('should return an error message', (done) => {
-            const document = {}
             chai.request(app)
-                .get('/api/documents')
-                .end((err, res) => {
-
-                  done();
-                });
+            .get(`/api/documents/${adminDocument._id}`)
+            .end((err, res) => {
+                res.should.have.status(400);
+                res.body.should.be.a('object');
+                res.body.should.have.property('message').eql('Please provide a token, or login to get one');
+                res.body.should.have.property('success').eql(false); 
+              done();
+            });
         });
     });
 
-    describe('Fetch a single admin document as an admin', () => {
-        it('should return a document object', (done) => {
-            const document = {}
-            chai.request(app)
-                .get('/api/documents')
-                .end((err, res) => {
-
-                  done();
-                });
-        });
-    });
-
-    describe('Fetch a single admin document as a normal user', () => {
+    describe('GET /api/documents/:documentID - Fetch a non-existing document', () => {
         it('should return an error message', (done) => {
-            const document = {}
             chai.request(app)
-                .get('/api/documents')
+                .get('/api/documents/5a0e9bdf66d0b332d5cd9e30')
+                .set('token', adminToken)
                 .end((err, res) => {
-
+                    res.should.have.status(404);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('message').eql('Document does not exist or you do not have access to it');
+                    res.body.should.have.property('success').eql(false); 
                   done();
                 });
         });
     });
 
-    describe('Fetch a single document without auth', () => {
-        it('should return an error message', (done) => {
-            const document = {}
-            chai.request(app)
-                .get('/api/documents')
-                .end((err, res) => {
-
-                  done();
-                });
-        });
-    });
-
-    describe('Fetch a non-existing document', () => {
-        it('should return an error message', (done) => {
-            const document = {}
-            chai.request(app)
-                .get('/api/documents')
-                .end((err, res) => {
-
-                  done();
-                });
-        });
-    });
-
-    describe('Update a document', () => {
+    describe('PATCH /api/documents/:documentID - Update a document', () => {
         it('should successfully update a document', (done) => {
-            const document = {}
             chai.request(app)
-                .patch('/api/documents')
-                .send(document) 
+                .patch(`/api/documents/${adminDocument._id}`)
+                .set('token', adminToken)
+                .send({ title: 'New Title' }) 
                 .end((err, res) => {
-
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('message').eql('Document updated successfully');
+                    res.body.should.have.property('success').eql(true); 
                   done();
                 });
         });
     });
 
-    describe('Update a document without auth', () => {
+    describe('PATCH /api/documents/:documentID - Update a document without auth', () => {
+        it('should return an error message', (done) => {
+            chai.request(app)
+                .patch(`/api/documents/${adminDocument._id}`)
+                .send({ title: 'New Title' }) 
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('message').eql('Please provide a token, or login to get one');
+                    res.body.should.have.property('success').eql(false); 
+                  done();
+                });
+        });
+    });
+
+    describe('PATCH /api/documents/:documentID - Update a document without ownership', () => {
+        it('should return an error message', (done) => {
+            chai.request(app)
+                .patch(`/api/documents/${adminDocument._id}`)
+                .set('token', normalUserToken)
+                .send({ title: 'New Title' }) 
+                .end((err, res) => {
+                    res.should.have.status(403);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('message').eql('Document does not exist or you are not allowed to modify it');
+                    res.body.should.have.property('success').eql(false);                     
+                  done();
+                });
+        });
+    });
+
+    describe('PATCH /api/documents/:documentID - Update a non-existing document', () => {
+        it('should return an error message', (done) => {
+            chai.request(app)
+                .patch('/api/documents/5a0e9bdf66d0b332d5cd9e30')
+                .set('token', adminToken)
+                .send({ title: 'New Title'})
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('message').eql('Document does not exist or you do not have access to it');
+                    res.body.should.have.property('success').eql(false); 
+                done();
+                });
+        });
+    });
+
+    describe('PUT /api/documents/:documentID - Replace a document', () => {
+        it('should successfully replace a document', (done) => {
+            chai.request(app)
+                .put(`/api/documents/${adminDocument._id}`)
+                .set('token', adminToken)
+                .send({ title: 'New Title', content: 'New Content', access: 'public' }) 
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('message').eql('Document updated successfully');
+                    res.body.should.have.property('success').eql(true); 
+                done();
+                });
+        });
+    });
+
+    describe('PUT /api/documents/:documentID - Replace a document without auth', () => {
+        it('should return an error message', (done) => {
+            chai.request(app)
+                .put(`/api/documents/${adminDocument._id}`)
+                .send({ title: 'New Title' }) 
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('message').eql('Please provide a token, or login to get one');
+                    res.body.should.have.property('success').eql(false); 
+                done();
+                });
+        });
+    });
+
+    describe('PUT /api/documents/:documentID - Replace a document without ownership', () => {
+        it('should return an error message', (done) => {
+            chai.request(app)
+                .put(`/api/documents/${adminDocument._id}`)
+                .set('token', normalUserToken)
+                .send({ title: 'New Title', content: 'New Content', access: 'public' })
+                .end((err, res) => {
+                    res.should.have.status(403);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('message').eql('Document does not exist or you are not allowed to modify it');
+                    res.body.should.have.property('success').eql(false);                     
+                done();
+                });
+        });
+    });
+
+    describe('PUT /api/documents/:documentID - Replace a non-existing document', () => {
+        it('should return an error message', (done) => {
+            chai.request(app)
+                .put('/api/documents/5a0e9bdf66d0b332d5cd9e30')
+                .set('token', adminToken)
+                .send({ title: 'New Title', content: 'New Content', access: 'public' })
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('message').eql('Document does not exist or you do not have access to it');
+                    res.body.should.have.property('success').eql(false); 
+                done();
+                });
+        });
+    });
+
+    describe('PUT /api/documents/:documentID - Replace a document without all fields', () => {
+        it('should return an error message', (done) => {
+            chai.request(app)
+                .put(`/api/documents/${adminDocument._id}`)
+                .set('token', adminToken)
+                .send({ title: 'New Title' })
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('name').eql('ValidationError');
+                done();
+                });
+        });
+    });
+
+    
+    describe('DELETE /api/documents/:documentID - Delete a document without ownership', () => {
         it('should return an error message', (done) => {
             const document = {}
             chai.request(app)
-                .patch('/api/documents')
-                .send(document) 
+                .delete(`/api/documents/${adminDocument._id}`)
+                .set('token', normalUserToken)
                 .end((err, res) => {
-                    
+                    res.should.have.status(403);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('message').eql('Document does not exist or you are not allowed to modify it');
+                    res.body.should.have.property('success').eql(false);                       
                   done();
                 });
         });
     });
 
-    describe('Update a document without ownership', () => {
-        it('should return an error message', (done) => {
-            const document = {}
-            chai.request(app)
-                .patch('/api/documents')
-                .send(document) 
-                .end((err, res) => {
-                    
-                  done();
-                });
-        });
-    });
-
-    describe('Update a document with invalid attributes', () => {
-        it('should return an error message', (done) => {
-            const document = {}
-            chai.request(app)
-                .patch('/api/documents')
-                .send(document) 
-                .end((err, res) => {
-                    
-                  done();
-                });
-        });
-    });
-
-    describe('Update a non-existing document document', () => {
-        it('should return an error message', (done) => {
-            const document = {}
-            chai.request(app)
-                .patch('/api/documents')
-                .send(document) 
-                .end((err, res) => {
-                    
-                  done();
-                });
-        });
-    });
-
-    describe('Replace a document', () => {
+    describe('DELETE /api/documents/:documentID - Delete a document', () => {
         it('should return a success message', (done) => {
-            const document = {}
             chai.request(app)
-                .put('/api/documents')
-                .send(document) 
+                .delete(`/api/documents/${adminDocumentB._id}`)
+                .set('token', adminToken)
                 .end((err, res) => {
-                    
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('message').eql('Document deleted successfully');
+                    res.body.should.have.property('success').eql(true);                   
                   done();
                 });
         });
     });
 
-    describe('Replace a document with invalid attributes', () => {
+    describe('DELETE /api/documents/:documentID - Delete a non-existent document', () => {
         it('should return an error message', (done) => {
             const document = {}
             chai.request(app)
-                .put('/api/documents')
-                .send(document) 
+                .delete('/api/documents/5a0e9bdf66d0b332d5cd9e31')
+                .set('token', adminToken)
                 .end((err, res) => {
-                    
+                    res.should.have.status(404);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('message').eql('Document does not exist or you do not have access to it');
+                    res.body.should.have.property('success').eql(false);                     
                   done();
                 });
         });
-    });
+    });    
 
-    describe('Replace a non existing document', () => {
+    describe('DELETE /api/documents/:documentID - Delete a document without auth', () => {
         it('should return an error message', (done) => {
-            const document = {}
             chai.request(app)
-                .put('/api/documents')
-                .send(document) 
+                .delete(`/api/documents/${adminDocument._id}`)
                 .end((err, res) => {
-                    
+                    res.should.have.status(400);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('message').eql('Please provide a token, or login to get one');
+                    res.body.should.have.property('success').eql(false);                     
                   done();
                 });
         });
     });
 
-    describe('Replace a document without auth', () => {
-        it('should return an error message', (done) => {
-            const document = {}
-            chai.request(app)
-                .put('/api/documents')
-                .send(document) 
-                .end((err, res) => {
-                    
-                  done();
-                });
-        });
-    });
-
-    describe('Replace a document without ownership', () => {
-        it('should return an error message', (done) => {
-            const document = {}
-            chai.request(app)
-                .put('/api/documents')
-                .send(document) 
-                .end((err, res) => {
-                    
-                  done();
-                });
-        });
-    });
-
-    describe('Delete a document', () => {
-        it('should return a success message', (done) => {
-            const document = {}
-            chai.request(app)
-                .delete('/api/documents')
-                .end((err, res) => {
-                    
-                  done();
-                });
-        });
-    });
-
-    describe('Delete a document without auth', () => {
-        it('should return an error message', (done) => {
-            const document = {}
-            chai.request(app)
-                .delete('/api/documents')
-                .end((err, res) => {
-                    
-                  done();
-                });
-        });
-    });
-
-    describe('Delete a document without ownership', () => {
-        it('should return an error message', (done) => {
-            const document = {}
-            chai.request(app)
-                .delete('/api/documents')
-                .end((err, res) => {
-                    
-                  done();
-                });
-        });
-    });
-
-    describe('Delete a non-existent document', () => {
-        it('should return an error message', (done) => {
-            const document = {}
-            chai.request(app)
-                .delete('/api/documents')
-                .end((err, res) => {
-                    
-                  done();
-                });
-        });
-    });
 });
