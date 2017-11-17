@@ -40,26 +40,23 @@ module.exports = {
     getUsers: async (req, res, next) => {
         const limit = req.query.limit || 5;
         const offset = req.query.offset || 5;
-        const users = await User.find({});
+        const users = await User.find({}, { password: 0 });
         res.status(200).json({success: true, users: users});
     },
     // Create a new user
-    // VALIDATED
     registerUser: async (req, res, next) => {
         const newUser = new User(req.value.body);
         const user = await newUser.save();
         res.status(201).json({success: true, message: 'User successfully registered', user: {username: user.username, email: user.email}});
     },
     // Find a single user by their userID
-    // VALIDATED
     findUser: async (req, res, next) => {
         const { userID } = req.value.params;
-        const user = await User.findById(userID);
+        const user = await User.findById(userID, { password: 0 });
         res.status(200).json(user);
 
     },
     // Update user attributes (PATCH)
-    // VALIDATED
     updateUser: async (req, res, next) => {
         // get user id from decoded token
         const userID = req.user.id;
@@ -68,7 +65,6 @@ module.exports = {
         res.status(200).json({success: true, message: 'Update successful'});
     },
     // Replace user (PUT)
-    // VALIDATED
     replaceUser: async (req, res, next) => {
         // get user id from decoded token
         const userID = req.user.id;
@@ -77,7 +73,6 @@ module.exports = {
         res.status(200).json({success: true, message: 'Update successful'});
     },
     // Delete a user
-    // VALIDATED
     deleteUser: async (req, res, next) => {
         // get user id from decoded token
         const userID = req.user.id;
@@ -86,8 +81,8 @@ module.exports = {
     },
     // Search for users
     searchUser: async (req, res, next) => {
-        const query = req.query.q;
-        const users = await User.find({ username: query });
+        const query = new RegExp(req.query.q, 'i');
+        var users = await User.find({ username: query }, { password: 0 });
         res.status(200).json({success: true, users: users});
     },
     // Get a user's documents
