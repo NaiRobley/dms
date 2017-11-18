@@ -4,8 +4,8 @@
   "description": "A document management system built with JavaScript",
   "main": "app.js",
   "scripts": {
-    "coverage": "NODE_ENV=TESTING `npm bin`/istanbul cover mocha \"server/tests/*.js\" --exit",
-    "coveralls": "npm run-script coverage && node bin/coveralls.js < coverage/lcov.info",  
+    "coverage": "NODE_ENV=TESTING istanbul cover _mocha \"server/tests/*.js\" --exit",
+    "coveralls": "npm run-script coverage && node bin/coveralls.js < coverage/lcov.info",
     "dev": "NODE_ENV=DEVELOPMENT nodemon server/server.js",
     "start": "NODE_ENV=PRODUCTION node server/server.js",
     "staging": "NODE_ENV=STAGING node server/server.js",
@@ -33,6 +33,7 @@
   "devDependencies": {
     "chai": "^4.1.2",
     "chai-http": "^3.0.0",
+    "istanbul": "^0.4.5",
     "mocha": "^4.0.1",
     "nodemon": "^1.12.1",
     "sinon": "^4.1.2",
