@@ -1,20 +1,19 @@
 'use strict';
 
-const express = require('express');
-const logger = require('morgan');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const app = express();
-const config = require('../config');
+const express = require('express'),
+      logger = require('morgan'), 
+      mongoose = require('mongoose'), 
+      bodyParser = require('body-parser'), 
+      app = express(),
+      config = require('../config'),
+      // Import the routes
+      userRoutes = require('./api/routes/usersRoutes'),
+      documentRoutes = require('./api/routes/documentsRoutes'),
+      searchRoutes = require('./api/routes/searchRoutes');
 
 // Connect to mongoose
 mongoose.Promise = global.Promise;
 mongoose.connect(config[process.env.NODE_ENV]['DATABASE'], { useMongoClient: true });
-
-// Imported routes
-const userRoutes = require('./api/routes/usersRoutes');
-const documentRoutes = require('./api/routes/documentsRoutes');
-const searchRoutes = require('./api/routes/searchRoutes');
 
 // Middleware
 app.use(logger('dev'));
@@ -42,8 +41,6 @@ app.use((err, req, res, next) => {
             message: error.message
         }
     });
-
-    // Respond to terminal(ourselves)
     console.error(err);
 });
 
