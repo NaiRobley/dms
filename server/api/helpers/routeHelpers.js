@@ -1,7 +1,7 @@
 'use strict';
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const Joi = require('joi');
+const jwt = require('jsonwebtoken'),
+      bcrypt = require('bcrypt'),
+      Joi = require('joi');
 
 module.exports = {
     // Generate a token when logging in
