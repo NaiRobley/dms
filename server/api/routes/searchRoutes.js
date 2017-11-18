@@ -6,10 +6,13 @@ const router = require('express-promise-router')();
 const documentsController = require('../controllers/documentController');
 const userController = require('../controllers/userController');
 
+// Middleware
+const { verifyToken } = require('../helpers/routeHelpers');
+
 router.route('/documents')
-    .get(documentsController.searchDocument);
+    .get(verifyToken(), documentsController.searchDocument);
 
 router.route('/users')
-    .get(userController.searchUser);
+    .get(verifyToken(), userController.searchUser);
 
 module.exports = router;
