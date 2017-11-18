@@ -1,8 +1,8 @@
 'use strict';
 
-const Document = require('../models/documentModel');
-const User = require('../models/userModel');
-const { documentAccessCheck, documentRoleCheck } = require('../helpers/routeHelpers');
+const Document = require('../models/documentModel'),
+      User = require('../models/userModel'),
+      { documentAccessCheck, documentRoleCheck } = require('../helpers/routeHelpers');
 
 module.exports = {
     // Get all documents

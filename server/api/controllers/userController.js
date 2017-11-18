@@ -1,8 +1,8 @@
 'use strict';
 
-const User = require('../models/userModel');
-const bcrypt = require('bcrypt');
-const { generateToken, encryptPassword, confirmPassword } = require('../helpers/routeHelpers');
+const User = require('../models/userModel'),
+      bcrypt = require('bcrypt'),
+      { generateToken, encryptPassword, confirmPassword } = require('../helpers/routeHelpers');
 
 module.exports = {
     // Log in a user
