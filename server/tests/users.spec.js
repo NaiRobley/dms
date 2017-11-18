@@ -217,7 +217,7 @@ describe('Tests for Users Functionality', () => {
     describe('PUT /api/users/ - Replace a user\'s details', () => {
         it('should return success message', (done) => {
             chai.request(app)
-                .patch('/api/users/')
+                .put('/api/users/')
                 .set('token', adminToken)
                 .send({ username: 'sampleAdmin',
                         password: 'sampleAdminPassword',
@@ -237,7 +237,7 @@ describe('Tests for Users Functionality', () => {
     describe('PUT /api/users - Replace a user\'s details without auth', () => {
         it('should return an error message', (done) => {
             chai.request(app)
-                .patch('/api/users/')
+                .put('/api/users/')
                 .send({ username: 'sampleAdmin',
                         password: 'sampleAdminPassword',
                         email: 'sample@admin.com',
