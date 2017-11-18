@@ -1,13 +1,11 @@
 'use strict';
 
-const express = require('express');
-const router = require('express-promise-router')();
-
-const documentsController = require('../controllers/documentController');
-const userController = require('../controllers/userController');
-
-// Middleware
-const { verifyToken } = require('../helpers/routeHelpers');
+const express = require('express'),
+      router = require('express-promise-router')(),
+      documentsController = require('../controllers/documentController'),
+      userController = require('../controllers/userController'),
+      // Middleware
+      { verifyToken } = require('../helpers/routeHelpers');
 
 router.route('/documents')
     .get(verifyToken(), documentsController.searchDocument);

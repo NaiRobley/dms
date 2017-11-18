@@ -1,12 +1,10 @@
 'use strict';
 
-const express = require('express');
-const router = require('express-promise-router')();
-
-const usersController = require('../controllers/userController');
-
-// Middleware
-const { validateParam, validateBody, schemas, verifyToken } = require('../helpers/routeHelpers');
+const express = require('express'),
+      router = require('express-promise-router')(),
+      usersController = require('../controllers/userController'),
+      // Middleware
+      { validateParam, validateBody, schemas, verifyToken } = require('../helpers/routeHelpers');
 
 router.route('/')
     .get(verifyToken(), usersController.getUsers)
@@ -30,8 +28,5 @@ router.route('/logout')
 router.route('/:userID/documents')
     .get([verifyToken(), validateParam(schemas.idSchema, 'userID')],
          usersController.userDocuments);
-
-// router.route('/search')
-//     .get(verifyToken(), usersController.searchUser);
 
 module.exports = router;

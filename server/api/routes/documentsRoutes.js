@@ -1,12 +1,10 @@
 'use strict';
 
-const express = require('express');
-const router = require('express-promise-router')();
-
-const documentsController = require('../controllers/documentController');
-
-// Middleware
-const { validateParam, validateBody, schemas, verifyToken } = require('../helpers/routeHelpers');
+const express = require('express'),
+      router = require('express-promise-router')(),
+      documentsController = require('../controllers/documentController'),
+      // Middleware
+      { validateParam, validateBody, schemas, verifyToken } = require('../helpers/routeHelpers');
 
 router.route('/')
     .get(verifyToken(), documentsController.getDocuments)
