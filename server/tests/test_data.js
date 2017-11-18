@@ -1,5 +1,5 @@
+// Test data
 module.exports = {
-    // Test variables
     sampleAdmin: {
         username: 'sampleAdmin',
         password: 'sampleAdminPassword',
@@ -14,16 +14,26 @@ module.exports = {
         role: 'normal',
         bio: 'A sample normal user'
     },
-    samplePrivateDocument: {
-        title: 'Sample private document',
-        content: 'This is a sample private document for testing purposes',
+    samplePrivateDocumentA: {
+        title: 'Sample private document A',
+        content: 'This is a sample private document A for testing purposes',
         access: 'private'
     },
-    samplePublicDocument: {
-        title: 'Sample public document',
-        content: 'This is a sample public document for testing purposes',
+    samplePrivateDocumentB: {
+        title: 'Sample private document B',
+        content: 'This is a sample private document B for testing purposes',
+        access: 'private'
+    },    
+    samplePublicDocumentA: {
+        title: 'Sample public document A',
+        content: 'This is a sample public document A for testing purposes',
         access: 'public'
     },
+    samplePublicDocumentB: {
+        title: 'Sample public document B',
+        content: 'This is a sample public document B for testing purposes',
+        access: 'public'
+    },    
     sampleAdminDocument: {
         title: 'Sample admin document',
         content: 'This is a sample role document for testing purposes',
