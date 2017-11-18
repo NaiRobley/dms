@@ -11,53 +11,7 @@ const mongoose = require('mongoose');
 
 const User = require('../api/models/userModel');
 const Document = require('../api/models/documentModel');
-
-// Test variables
-const sampleAdmin = {
-    username: 'sampleAdmin',
-    password: 'sampleAdminPassword',
-    email: 'sample@admin.com',
-    role: 'admin',
-    bio: 'A sample admin'
-}
-
-const sampleNormal = {
-    username: 'sampleNormal',
-    password: 'sampleNormalPassword',
-    email: 'sample@normal.com',
-    role: 'normal',
-    bio: 'A sample normal user'
-};
-
-const samplePrivateDocument = {
-    title: 'Sample private document',
-    content: 'This is a sample private document for testing purposes',
-    access: 'private'
-};
-
-const samplePublicDocument = {
-    title: 'Sample public document',
-    content: 'This is a sample public document for testing purposes',
-    access: 'public'
-}; 
-
-const sampleAdminDocument = {
-    title: 'Sample admin document',
-    content: 'This is a sample role document for testing purposes',
-    access: 'admin'
-};
-
-const sampleAdminDocumentA = {
-    title: 'Sample Admin Document A',
-    content: 'The content for sample admin document a',
-    access: 'public'
-};
-
-const sampleAdminDocumentB = {
-    title: 'Sample Admin Document B',
-    content: 'The content for sample admin document b',
-    access: 'private'            
-};
+const testData = require('./test_data');
 
 let adminToken = '';
 
@@ -73,7 +27,7 @@ describe('Tests for Users Functionality', () => {
     before((done) => {
         chai.request(app)
             .post('/api/users/')
-            .send(sampleAdmin)
+            .send(testData.sampleAdmin)
             .end((err, res) => {
                 done();
             });
@@ -82,7 +36,7 @@ describe('Tests for Users Functionality', () => {
     before((done) => {
         chai.request(app)
         .post('/api/users/login/')
-        .send(sampleAdmin)
+        .send(testData.sampleAdmin)
         .end((err, res) => {
             adminToken = res.body.token;
             adminID = res.body.id;
@@ -93,7 +47,7 @@ describe('Tests for Users Functionality', () => {
     before((done) => {
         chai.request(app)
             .post('/api/users/')
-            .send(sampleNormal)
+            .send(testData.sampleNormal)
             .end((err, res) => {
                 done();
             });        
@@ -102,7 +56,7 @@ describe('Tests for Users Functionality', () => {
     before((done) => {
         chai.request(app)
             .post('/api/users/login/')
-            .send(sampleNormal)
+            .send(testData.sampleNormal)
             .end((err, res) => {
                 normalUserToken = res.body.token;
                 normalUserID = res.body.id;
@@ -114,7 +68,7 @@ describe('Tests for Users Functionality', () => {
         chai.request(app)
             .post('/api/documents/')
             .set('token', adminToken)
-            .send(sampleAdminDocumentA)
+            .send(testData.sampleAdminDocumentA)
             .end((err, res) => {
                 done();
             });          
@@ -123,7 +77,7 @@ describe('Tests for Users Functionality', () => {
         chai.request(app)
             .post('/api/documents/')
             .set('token', adminToken)
-            .send(sampleAdminDocumentB)
+            .send(testData.sampleAdminDocumentB)
             .end((err, res) => {
                 done();
             });          
