@@ -4,7 +4,7 @@ dist: trusty
 node_js:
   - stable
 services:
-  - mongoose
+  - mongodb
 before_script:
   - sleep 15
 script:
