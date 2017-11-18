@@ -2,33 +2,24 @@
 
 process.env.NODE_ENV = 'TESTING';
 
-const chai = require('chai');
+const chai = require('chai'),
+      should = chai.should(),
+      app = require('../server'),
+      mongoose = require('mongoose'),
+      User = require('../api/models/userModel'),
+      Document = require('../api/models/documentModel'),
+      testData = require('./test_data');
+
 chai.use(require('chai-http'));
-const app = require('../server');
-const should = chai.should();
-const config = require('../../config');
 
-const mongoose = require('mongoose');
-
-const User = require('../api/models/userModel');
-const Document = require('../api/models/documentModel');
-const testData = require('./test_data');
-
-let adminToken = '';
-
-let normalUserToken = '';
-
-let adminID = '';
-
-let normalUserID = '';
-
-let publicDocument = {};
-
-let privateDocument = {};
-
-let adminDocument = {};
-
-let adminDocumentB = {};
+let adminToken = '',
+    normalUserToken = '',
+    adminID = '',
+    normalUserID = '',
+    publicDocument = {},
+    privateDocument = {},
+    adminDocument = {},
+    adminDocumentB = {};
 
 describe('Tests for Search Functionality', () => {
     // Create a sample admin user
