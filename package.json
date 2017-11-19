@@ -4,12 +4,11 @@
   "description": "A document management system built with JavaScript",
   "main": "app.js",
   "scripts": {
-    "coverage": "NODE_ENV=TESTING istanbul cover _mocha ./server/tests/*.js",
-    "coveralls": "npm run coverage && node bin/coveralls.js < coverage/lcov.info",
+    "coveralls": "NODE_ENV=TESTING nyc report --reporter=text-lcov | coveralls",
     "dev": "NODE_ENV=DEVELOPMENT nodemon server/server.js",
     "start": "NODE_ENV=PRODUCTION node server/server.js",
     "staging": "NODE_ENV=STAGING node server/server.js",
-    "test:server": "NODE_ENV=TESTING mocha ./server/tests --exit",
+    "test:server": "NODE_ENV=TESTING nyc --reporter=html --reporter=text mocha ./server/tests/*.js --exit",
     "test": "npm run test:server"
   },
   "author": "Robley Gori <robleyadrian@gmail.com>",
@@ -41,6 +40,7 @@
     "istanbul": "^0.4.5",
     "mocha": "^4.0.1",
     "nodemon": "^1.12.1",
+    "nyc": "^11.3.0",
     "sinon": "^4.1.2",
     "sinon-mongoose": "^2.0.2"
   }
