@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const mongoose = require('mongoose'),
+      Schema = mongoose.Schema;
 
 const documentSchema = new Schema({
     title: {
@@ -19,10 +19,6 @@ const documentSchema = new Schema({
         required: 'Kindly enter the access level for the document'
     },
     createdOn: {
-        type: Date,
-        default: Date.now
-    },
-    modifiedOn: {
         type: Date,
         default: Date.now
     }

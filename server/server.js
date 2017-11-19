@@ -1,19 +1,19 @@
 'use strict';
 
-const express = require('express');
-const logger = require('morgan');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const app = express();
+const express = require('express'),
+      logger = require('morgan'), 
+      mongoose = require('mongoose'), 
+      bodyParser = require('body-parser'), 
+      app = express(),
+      config = require('../config'),
+      // Import the routes
+      userRoutes = require('./api/routes/usersRoutes'),
+      documentRoutes = require('./api/routes/documentsRoutes'),
+      searchRoutes = require('./api/routes/searchRoutes');
 
 // Connect to mongoose
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/dmsdb', { useMongoClient: true });
-
-// Imported routes
-const userRoutes = require('./api/routes/usersRoutes');
-const documentRoutes = require('./api/routes/documentsRoutes');
-const searchRoutes = require('./api/routes/searchRoutes');
+mongoose.connect(config[process.env.NODE_ENV]['DATABASE'], { useMongoClient: true });
 
 // Middleware
 app.use(logger('dev'));
@@ -33,7 +33,7 @@ app.use((req, res, next) => {
 
 // Error handler function
 app.use((err, req, res, next) => {
-    const error = app.get('env') === 'development' ? err : {};
+    const error = app.get('env') === 'DEVELOPMENT' ? err : {};
     const status = err.status || 500;
     // Respond to client
     res.status(status).json({
@@ -41,11 +41,11 @@ app.use((err, req, res, next) => {
             message: error.message
         }
     });
-
-    // Respond to terminal(ourselves)
     console.error(err);
 });
 
 // Start the server
-const port = app.get('port') || 3000;
+const port = config[process.env.NODE_ENV]['PORT'] || 3005;
 app.listen(port, () => console.log(`Server is listening on port ${port}`));
+
+module.exports = app; // for testing

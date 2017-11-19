@@ -1,7 +1,8 @@
 'use strict';
 
-const User = require('../models/userModel');
-const { generateToken, encryptPassword, confirmPassword } = require('../helpers/routeHelpers');
+const User = require('../models/userModel'),
+      bcrypt = require('bcrypt'),
+      { generateToken, encryptPassword, confirmPassword } = require('../helpers/routeHelpers');
 
 module.exports = {
     // Log in a user
@@ -16,7 +17,7 @@ module.exports = {
                     res.status(404).json({ success: false, message: 'User not found'});
                 } else if (user) {
                     const state = confirmPassword(req.body.password, user.password);
-                    if (state == false) {
+                    if (state != true) {
                         res.status(401).json({ success: false, message: 'Wrong password'});
                     } else {
                         const payload = {
@@ -25,7 +26,7 @@ module.exports = {
                             role: user.role
                         };
                         const token = generateToken(payload);
-                        res.status(200).json({ token: token, success: true });
+                        res.status(200).json({ id: user._id, token: token, success: true });
                     }
                 }
             }
@@ -39,58 +40,55 @@ module.exports = {
     getUsers: async (req, res, next) => {
         const limit = req.query.limit || 5;
         const offset = req.query.offset || 5;
-        const users = await User.find({});
-        res.status(200).json(users);
+        const users = await User.find({}, { password: 0 });
+        res.status(200).json({success: true, users: users});
     },
     // Create a new user
-    // VALIDATED
     registerUser: async (req, res, next) => {
         const newUser = new User(req.value.body);
         const user = await newUser.save();
-        res.status(201).json(user);
+        res.status(201).json({success: true, message: 'User successfully registered', user: {username: user.username, email: user.email}});
     },
     // Find a single user by their userID
-    // VALIDATED
     findUser: async (req, res, next) => {
         const { userID } = req.value.params;
-        const user = await User.findById(userID);
+        const user = await User.findById(userID, { password: 0 });
         res.status(200).json(user);
 
     },
     // Update user attributes (PATCH)
-    // VALIDATED
     updateUser: async (req, res, next) => {
-        // req.body can contain any number of fields
-        const { userID } = req.value.params;
+        // get user id from decoded token
+        const userID = req.user.id;
         const newUser = req.value.body;
         const result = await User.findByIdAndUpdate(userID, newUser);
-        res.status(200).json({success: true});
+        res.status(200).json({success: true, message: 'Update successful'});
     },
     // Replace user (PUT)
-    // VALIDATED
     replaceUser: async (req, res, next) => {
-        const { userID } = req.value.params;
+        // get user id from decoded token
+        const userID = req.user.id;
         const newUser = req.value.body;
         const result = await User.findByIdAndUpdate(userID, newUser);
-        res.status(200).json({success: true});
+        res.status(200).json({success: true, message: 'Update successful'});
     },
     // Delete a user
-    // VALIDATED
     deleteUser: async (req, res, next) => {
-        const { userID } = req.value.params;
+        // get user id from decoded token
+        const userID = req.user.id;
         const result = await User.findByIdAndRemove(userID);
         res.status(204).json({success: true});
     },
     // Search for users
     searchUser: async (req, res, next) => {
-        const query = req.query.q;
-        const users = await User.find({ username: query });
-        res.status(200).json(users);
+        const query = new RegExp(req.query.q, 'i');
+        var users = await User.find({ username: query }, { password: 0 });
+        res.status(200).json({success: true, users: users});
     },
     // Get a user's documents
     userDocuments: async (req, res, next) => {
         const { userID } = req.value.params;
         const user = await User.findById(userID).populate('documents');
-        res.status(200).json(user.documents);
+        res.status(200).json({ success: true, documents: user.documents });
     }
 };

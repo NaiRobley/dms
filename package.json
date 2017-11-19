@@ -4,16 +4,29 @@
   "description": "A document management system built with JavaScript",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon server/server.js",
-    "start": "node server/server.js"
+    "coveralls": "NODE_ENV=TESTING nyc report --reporter=text-lcov | coveralls",
+    "dev": "NODE_ENV=DEVELOPMENT nodemon server/server.js",
+    "start": "NODE_ENV=PRODUCTION node server/server.js",
+    "staging": "NODE_ENV=STAGING node server/server.js",
+    "test:server": "NODE_ENV=TESTING nyc --reporter=html --reporter=text mocha ./server/tests/*.js --exit",
+    "test": "npm run test:server"
   },
   "author": "Robley Gori <robleyadrian@gmail.com>",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NaiRobley/dms.git"
+  },
   "dependencies": {
+    "babel-eslint": "^8.0.2",
     "bcrypt": "^1.0.3",
     "body-parser": "^1.18.2",
+    "coveralls": "^2.13.1",
     "eslint": "^4.11.0",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jsx-a11y": "^2.2.3",
+    "eslint-plugin-react": "^7.4.0",
     "express": "^4.16.2",
     "express-promise-router": "^2.0.0",
     "joi": "^13.0.2",
@@ -22,6 +35,13 @@
     "morgan": "^1.9.0"
   },
   "devDependencies": {
-    "nodemon": "^1.12.1"
+    "chai": "^4.1.2",
+    "chai-http": "^3.0.0",
+    "istanbul": "^0.4.5",
+    "mocha": "^4.0.1",
+    "nodemon": "^1.12.1",
+    "nyc": "^11.3.0",
+    "sinon": "^4.1.2",
+    "sinon-mongoose": "^2.0.2"
   }
 }

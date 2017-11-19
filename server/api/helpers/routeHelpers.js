@@ -1,7 +1,7 @@
 'use strict';
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const Joi = require('joi');
+const jwt = require('jsonwebtoken'),
+      bcrypt = require('bcrypt'),
+      Joi = require('joi');
 
 module.exports = {
     // Generate a token when logging in
@@ -30,29 +30,30 @@ module.exports = {
         }
     },
     // Verify password during login or update
-    confirmPassword: async (password, hash) => {
-        return await bcrypt.compare(password, hash, (err, result) => {
-            return result;
-        });
+    confirmPassword: (password, hash) => {
+        return bcrypt.compareSync(password, hash);
     },
-    // Role verification for documents
+    // Role verification for documents when updating and deleting
     documentRoleCheck: (document, user) => {
-        if (document.access === 'public') {
+       if (document.owner == user.id ) {
             return document;
-        } else {
-            return null;
-        }
-        if (document.access === 'private' && document.owner == user.id) {
-            return document;
-        } else {
-            return null;
+       }      
+    },
+    // Check the role of documents while fetching
+    documentAccessCheck: (document, user) => {
+        if (document.access === 'admin' && document.owner == user.id ) {
+             return document;
         }
         if (document.access === 'admin' && user.role === 'admin') {
-            return document;
-        } else {
-            return null;
+             return document;
         }
-    },
+        if (document.access === 'private' && document.owner == user.id) {
+             return document;
+        }
+        if (document.access === 'public') {
+             return document;
+        }         
+     },
     // Validation of the request parameters
     validateParam: (schema, name) => {
         return (req, res, next) => {
@@ -120,9 +121,9 @@ module.exports = {
         }),
         // For PATCH requests validation
         documentSchemaOptional: Joi.object().keys({
-            title: Joi.string().required(),
-            content: Joi.string().required(),
-            access: Joi.string().required()
+            title: Joi.string(),
+            content: Joi.string(),
+            access: Joi.string()
         })        
     }
 };
