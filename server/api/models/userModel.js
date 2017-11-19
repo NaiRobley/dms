@@ -19,7 +19,7 @@ const userSchema = new Schema({
     bio: String,
     role: {
         type: String,
-        default: 'public'
+        default: 'normal'
     },
     documents: [{
         type: Schema.Types.ObjectId,
