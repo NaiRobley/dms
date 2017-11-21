@@ -6,7 +6,7 @@ const Document = require('../models/documentModel'),
 
 module.exports = {
     // Get all documents
-    getDocuments: async (req, res, next) => {
+    getDocuments: async (req, res) => {
         const limit = req.query.limit || 5;
         const offset = req.query.offset || 5;
         const allDocuments = await Document.find({});
@@ -14,7 +14,7 @@ module.exports = {
         res.status(200).json({ success: true, documents: documents });
     },
     // Get a single document
-    getDocument: async (req, res, next) => {
+    getDocument: async (req, res) => {
         const { documentID } = req.value.params;
         const document = await Document.findById(documentID);
         if (document){
@@ -30,7 +30,7 @@ module.exports = {
         
     },
     // Create a document
-    createDocument: async (req, res, next) => {
+    createDocument: async (req, res) => {
         const newDocument = new Document(req.value.body);
         // Get user ID ( decoded from token)
         const owner = await User.findById(req.user.id);
@@ -45,7 +45,7 @@ module.exports = {
         res.status(201).json({ success: true, document: newDocument, message: 'Document successfully created'});
     },
     // Update a document (PATCH)
-    updateDocument: async (req, res, next) => {
+    updateDocument: async (req, res) => {
         const { documentID } = req.value.params;
         const newDocument = req.value.body;
         // Find the document and check access
@@ -63,7 +63,7 @@ module.exports = {
         }
     },
     // Replace a document (PUT)
-    replaceDocument: async (req, res, next) => {
+    replaceDocument: async (req, res) => {
         const { documentID } = req.value.params;
         const newDocument = req.value.body;
         // Find the document and check access
@@ -81,7 +81,7 @@ module.exports = {
         }         
     },
     // Delete a document
-    deleteDocument: async (req, res, next) => {
+    deleteDocument: async (req, res) => {
         const { documentID } = req.value.params;
         // Find the document and check access
         const document = await Document.findById(documentID);
@@ -105,7 +105,7 @@ module.exports = {
         }
     },
     // Search for a document
-    searchDocument: async (req, res, next) => {
+    searchDocument: async (req, res) => {
         const query = new RegExp(req.query.q, 'i');
         const allDocuments = await Document.find({ title: query });
         let documents = await allDocuments.filter((document, user) => documentAccessCheck(document, req.user));
